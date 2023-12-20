@@ -1,0 +1,75 @@
+<mat-form-field>
+  <input matInput (keyup)="applyFilter($event)" placeholder="Filter" />
+</mat-form-field>
+<table
+  mat-table
+  [dataSource]="dataSource"
+  matSort
+  cdkDropList
+  cdkDropListOrientation="horizontal"
+  (cdkDropListDropped)="drop($event)"
+  class="mat-elevation-z8"
+>
+  <ng-container
+    [matColumnDef]="tableData"
+    *ngFor="let tableData of objectKeys(columnHeader)"
+  >
+    <ng-container [ngSwitch]="tableData">
+      <ng-container *ngSwitchCase="'age'">
+        <th cdkDrag mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ columnHeader[tableData] }}
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-form-field>
+            <mat-label>Choose a date</mat-label>
+            <input matInput [matDatepicker]="picker" />
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <ng-container *ngSwitchDefault>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ columnHeader[tableData] }}
+        </th>
+        <td mat-cell *matCellDef="let element">{{ element[tableData] }}</td>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'actions'">
+        <th mat-header-cell *matHeaderCellDef>{{ columnHeader[tableData] }}</th>
+        <td mat-cell *matCellDef="let row">
+          <button
+            (click)="handleClick(row, 'edit')"
+            *ngIf="!row.hasOwnProperty('isEditable') || row['isEditable']"
+          >
+            Edit
+          </button>
+          <button
+            (click)="handleClick(row, 'delete')"
+            *ngIf="!row.hasOwnProperty('isDeletable') || row['isDeletable']"
+          >
+            Delete
+          </button>
+        </td>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+
+  <!-- Row shown when there is no matching data. -->
+  <tr class="mat-row" *matNoDataRow>
+    <td class="mat-cell" colspan="4">No data found</td>
+  </tr>
+
+  <tr mat-header-row *matHeaderRowDef="objectKeys(columnHeader)"></tr>
+  <tr mat-row *matRowDef="let row; columns: objectKeys(columnHeader)"></tr>
+</table>
+
+<mat-paginator
+  [pageSize]="5"
+  [pageSizeOptions]="[2, 10, 25, 100]"
+></mat-paginator>
